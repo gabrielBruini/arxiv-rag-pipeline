@@ -11,8 +11,8 @@ class VectorStoreRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def exists(self, point_id: str) -> bool:
-        """Verifica se um ponto (ex: um paper, identificado pelo arxiv_id) já foi indexado."""
+    def exists_batch(self, point_ids: list[str]) -> set[str]:
+        """Dado um lote de ids, retorna o subconjunto que JÁ existe na collection."""
         raise NotImplementedError
 
     @abstractmethod

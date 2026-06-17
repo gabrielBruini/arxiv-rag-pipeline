@@ -8,11 +8,13 @@ from domain.interfaces.vector_store_repository import VectorStoreRepository
 
 
 def _to_point_id(arxiv_id: str) -> str:
-  
     return str(uuid.uuid5(uuid.NAMESPACE_URL, f"arxiv:{arxiv_id}"))
 
 
 class QdrantRepository(VectorStoreRepository):
+
+    # Limite conservador de ids por chamada de retrieve, para não estourar a request.
+    _RETRIEVE_CHUNK_SIZE = 500
 
     def __init__(self, collection_name: str = "arxiv_cs_papers", host: str = "localhost", port: int = 6333):
         self._client = QdrantClient(host=host, port=port)
@@ -27,12 +29,24 @@ class QdrantRepository(VectorStoreRepository):
             vectors_config=VectorParams(size=dimension, distance=Distance.COSINE),
         )
 
-    def exists(self, point_id: str) -> bool:
-        result = self._client.retrieve(
-            collection_name=self._collection_name,
-            ids=[_to_point_id(point_id)],
-        )
-        return len(result) > 0
+    def exists_batch(self, point_ids: list[str]) -> set[str]:
+        # Mapeia o point_id interno (UUID) de volta para o id original, já que o
+        # retrieve retorna os pontos pelo UUID e não pelo arxiv_id.
+        original_by_point_id = {_to_point_id(pid): pid for pid in point_ids}
+
+        existing: set[str] = set()
+        ids = list(original_by_point_id)
+        for start in range(0, len(ids), self._RETRIEVE_CHUNK_SIZE):
+            chunk = ids[start : start + self._RETRIEVE_CHUNK_SIZE]
+            records = self._client.retrieve(
+                collection_name=self._collection_name,
+                ids=chunk,
+                with_payload=False,
+                with_vectors=False,
+            )
+            existing.update(original_by_point_id[str(record.id)] for record in records)
+
+        return existing
 
     def upsert(self, point_id: str, vector: list[float], payload: dict[str, Any]) -> None:
         point = PointStruct(
