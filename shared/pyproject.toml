@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shared"
+version = "0.1.0"
+description = "Entidades e código compartilhado do (crawler, ingestion)"
+requires-python = ">=3.10"
+dependencies = []
+
+# Namespace package (PEP 420): nenhum __init__.py em src/shared.
+# Isso permite que o pacote instalado `shared.*` conviva com o
+# `shared` interno de cada projeto (ex.: crawler/src/shared/config.py).
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["shared*"]
+namespaces = true

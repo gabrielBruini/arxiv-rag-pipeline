@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from domain.entities.paper import Paper
+from shared.entities.paper import Paper
 
 class HarvestRepository(ABC):
     """

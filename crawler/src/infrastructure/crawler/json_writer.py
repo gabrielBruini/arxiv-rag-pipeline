@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from dataclasses import asdict
-from domain.entities.paper import Paper
+from shared.entities.paper import Paper
 from shared.logger import get_logger
 
 logger = get_logger(__name__)

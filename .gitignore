@@ -5,6 +5,12 @@ __pycache__/
 *.pyd
 .Python
 
+# Artefatos de empacotamento (gerados por pip install / build)
+*.egg-info/
+*.egg-link
+build/
+dist/
+
 # Ambientes virtuais
 .venv/
 venv/

@@ -1,6 +1,6 @@
 import time
 from lxml import etree
-from domain.entities.paper import Paper
+from shared.entities.paper import Paper
 from domain.interfaces.harvest_repository import HarvestRepository
 from infrastructure.crawler.http_client import HttpClient
 from shared.logger import get_logger

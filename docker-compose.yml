@@ -3,8 +3,8 @@ version: "3.9"
 x-airflow-common: &airflow-common
   image: gov-rag-airflow:2.9.0
   build:
-    context: ./crawler
-    dockerfile: Dockerfile
+    context: .
+    dockerfile: crawler/Dockerfile
   environment:
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -13,6 +13,7 @@ x-airflow-common: &airflow-common
   volumes:
     - ./crawler/dags:/opt/airflow/dags
     - ./crawler/src:/opt/airflow/src
+    - ./shared:/shared
     - ./data:/opt/airflow/data
     - ./logs:/opt/airflow/logs
   depends_on:
