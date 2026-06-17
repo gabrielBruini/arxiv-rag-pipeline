@@ -9,6 +9,7 @@ description = "Pipeline de ingestion (embedding + vector store)"
 requires-python = ">=3.10"
 dependencies = [
     "sentence-transformers>=3.0.0",
+    "qdrant-client>=1.9.0",
 ]
 
 [tool.setuptools.packages.find]
