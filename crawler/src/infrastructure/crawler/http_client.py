@@ -1,0 +1,38 @@
+import requests
+from pathlib import Path
+from tqdm import tqdm
+from shared.config import settings
+from shared.logger import get_logger
+
+logger = get_logger(__name__)
+
+class HttpClient:
+
+    def download(self, url: str, dest: Path) -> Path:
+        if dest.exists():
+            logger.info(f"Arquivo já existe, pulando: {dest.name}")
+            return dest
+
+        logger.info(f"Baixando: {url}")
+        response = requests.get(url, stream=True, timeout=settings.TIMEOUT)
+        response.raise_for_status()
+
+        total = int(response.headers.get("content-length", 0))
+
+        with open(dest, "wb") as f, tqdm(total=total, unit="B", unit_scale=True, desc=dest.name) as bar:
+            for chunk in response.iter_content(chunk_size=settings.CHUNK_SIZE):
+                f.write(chunk)
+                bar.update(len(chunk))
+
+        return dest
+
+    def get(self, url: str, params: dict | None = None) -> str:
+        """
+        Faz uma requisição GET e retorna o corpo da resposta como texto.
+        Usado para APIs que retornam XML/JSON direto (ex: OAI-PMH),
+        diferente do download() que salva em disco.
+        """
+        logger.info(f"GET: {url} | params={params}")
+        response = requests.get(url, params=params, timeout=settings.TIMEOUT)
+        response.raise_for_status()
+        return response.text
