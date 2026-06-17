@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from shared.entities.paper import Paper
+from shared.domain.entities.paper import Paper
 
 class HarvestRepository(ABC):
     """
     Contrato para fontes de dados que usam paginação via token
-    (ao invés de download de arquivo único, como o CrawlerRepository).
+    (ao invés de download de um arquivo único).
     """
 
     @abstractmethod

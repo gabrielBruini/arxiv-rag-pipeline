@@ -18,11 +18,11 @@ from pathlib import Path
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
-from application.usecases.ingest_papers import IngestPapersUseCase
-from infrastructure.embedding.sentence_transformer_repository import (
+from ingestion.application.usecases.ingest_papers import IngestPapersUseCase
+from ingestion.infrastructure.embedding.sentence_transformer_repository import (
     SentenceTransformerRepository,
 )
-from infrastructure.vector_store.qdrant_repository import QdrantRepository
+from ingestion.infrastructure.vector_store.qdrant_repository import QdrantRepository
 
 CRAWLER_RAW_DIR = Path(__file__).resolve().parent.parent / "crawler" / "data" / "raw"
 

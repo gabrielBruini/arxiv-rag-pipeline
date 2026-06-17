@@ -1,44 +1,52 @@
 from __future__ import annotations
 
 from datetime import datetime
+
 from airflow.decorators import dag, task
 from airflow.models.param import Param
 
+
 @dag(
-    dag_id="crawler_portal_transparencia",
+    dag_id="arxiv_harvester",
     schedule="0 3 * * 1",  # Toda segunda às 3h
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["crawler", "governo", "siape"],
+    tags=["crawler", "arxiv", "cs"],
     params={
-        "year": Param(default=2026, type="integer", description="Ano de referência"),
-        "month": Param(default=4, type="integer", minimum=1, maximum=12, description="Mês de referência (portal publica com ~2 meses de atraso)"),
-        "dataset_type": Param(default="Servidores_SIAPE", type="string", description="Tipo do dataset"),
+        "max_pages": Param(
+            default=1,
+            type="integer",
+            minimum=1,
+            description="Número máximo de páginas OAI-PMH a coletar.",
+        ),
     },
 )
-def crawler_dag():
+def arxiv_harvester():
 
     @task
-    def crawl(params: dict = None) -> list[str]:
+    def harvest(params: dict) -> str:
         import sys
+        from datetime import datetime
+        from pathlib import Path
+
         sys.path.insert(0, "/opt/airflow/src")
 
+        from application.usecases.harvest_papers import HarvestPapersUseCase
+        from infrastructure.crawler.arxiv_repository import ArxivRepository
         from infrastructure.crawler.http_client import HttpClient
-        from infrastructure.crawler.zip_extractor import ZipExtractor
-        from infrastructure.crawler.portal_repository import PortalTransparenciaRepository
-        from application.usecases.crawl_dataset import CrawlDatasetUseCase
+        from infrastructure.crawler.json_writer import JsonWriter
 
-        repo = PortalTransparenciaRepository(HttpClient(), ZipExtractor())
-        use_case = CrawlDatasetUseCase(repo)
+        repo = ArxivRepository(HttpClient())
+        use_case = HarvestPapersUseCase(repo)
+        papers = use_case.execute(max_pages=params["max_pages"])
 
-        dataset = use_case.execute(
-            year=params["year"],
-            month=params["month"],
-            dataset_type=params["dataset_type"],
-        )
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dest = Path("/opt/airflow/data/raw") / f"arxiv_papers_{timestamp}.json"
+        JsonWriter().write(papers, dest)
 
-        return [str(p) for p in dataset.csv_paths]
+        return str(dest)
 
-    crawl()
+    harvest()
 
-crawler_dag()
+
+arxiv_harvester()

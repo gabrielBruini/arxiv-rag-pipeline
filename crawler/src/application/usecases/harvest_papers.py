@@ -1,4 +1,4 @@
-from shared.entities.paper import Paper
+from shared.domain.entities.paper import Paper
 from domain.interfaces.harvest_repository import HarvestRepository
 from shared.logger import get_logger
 

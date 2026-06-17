@@ -2,9 +2,9 @@ from pathlib import Path
 
 from shared.domain.entities.paper import Paper
 
-from domain.interfaces.embedding_repository import EmbeddingRepository
-from domain.interfaces.vector_store_repository import VectorStoreRepository
-from infrastructure.readers.json_reader import read_papers
+from ingestion.domain.interfaces.embedding_repository import EmbeddingRepository
+from ingestion.domain.interfaces.vector_store_repository import VectorStoreRepository
+from ingestion.infrastructure.readers.json_reader import read_papers
 
 
 def _to_payload(paper: Paper) -> dict:

@@ -4,7 +4,7 @@ from typing import Any
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
-from domain.interfaces.vector_store_repository import VectorStoreRepository
+from ingestion.domain.interfaces.vector_store_repository import VectorStoreRepository
 
 
 def _to_point_id(arxiv_id: str) -> str:

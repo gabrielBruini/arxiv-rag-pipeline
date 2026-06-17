@@ -3,16 +3,18 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ingestion"
+name = "rag"
 version = "0.1.0"
-description = "Pipeline de ingestion (embedding + vector store)"
+description = "API de RAG (retrieval-augmented generation) sobre papers do arXiv"
 requires-python = ">=3.10"
 dependencies = [
-    "sentence-transformers>=3.0.0",
-    "qdrant-client>=1.9.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "requests>=2.31.0",
+    "certifi>=2024.0.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["ingestion*"]
+include = ["rag*"]
 namespaces = true
