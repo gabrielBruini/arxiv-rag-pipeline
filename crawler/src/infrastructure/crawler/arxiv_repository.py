@@ -22,8 +22,13 @@ class ArxivRepository(HarvestRepository):
         self.set_spec = settings.arxiv_set_spec
         self.request_delay = settings.arxiv_request_delay
 
-    def harvest_page(self, resumption_token: str | None = None) -> tuple[list[Paper], str | None]:
-        params = self._build_params(resumption_token)
+    def harvest_page(
+        self,
+        resumption_token: str | None = None,
+        from_date: str | None = None,
+        until_date: str | None = None,
+    ) -> tuple[list[Paper], str | None]:
+        params = self._build_params(resumption_token, from_date, until_date)
 
         time.sleep(self.request_delay)
         response_xml = self.http_client.get(self.base_url, params=params)
@@ -34,15 +39,25 @@ class ArxivRepository(HarvestRepository):
 
         return papers, next_token
 
-    def _build_params(self, resumption_token: str | None) -> dict:
+    def _build_params(
+        self,
+        resumption_token: str | None,
+        from_date: str | None = None,
+        until_date: str | None = None,
+    ) -> dict:
         if resumption_token:
             return {"verb": "ListRecords", "resumptionToken": resumption_token}
 
-        return {
+        params = {
             "verb": "ListRecords",
             "metadataPrefix": self.metadata_prefix,
             "set": self.set_spec,
         }
+        if from_date:
+            params["from"] = from_date
+        if until_date:
+            params["until"] = until_date
+        return params
 
     def _parse_records(self, root: etree._Element) -> list[Paper]:
         papers = []

@@ -18,6 +18,16 @@ from airflow.models.param import Param
             minimum=1,
             description="Número máximo de páginas OAI-PMH a coletar.",
         ),
+        "from_date": Param(
+            default="",
+            type="string",
+            description="Data inicial YYYY-MM-DD (filtra por datestamp). Vazio = sem filtro.",
+        ),
+        "until_date": Param(
+            default="",
+            type="string",
+            description="Data final YYYY-MM-DD. Vazio = sem filtro.",
+        ),
     },
 )
 def arxiv_pipeline():
@@ -36,7 +46,11 @@ def arxiv_pipeline():
         from infrastructure.crawler.json_writer import JsonWriter
 
         repo = ArxivRepository(HttpClient())
-        papers = HarvestPapersUseCase(repo).execute(max_pages=params["max_pages"])
+        papers = HarvestPapersUseCase(repo).execute(
+            max_pages=params["max_pages"],
+            from_date=params.get("from_date") or None,
+            until_date=params.get("until_date") or None,
+        )
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         dest = Path("/opt/airflow/data/raw") / f"arxiv_papers_{timestamp}.json"

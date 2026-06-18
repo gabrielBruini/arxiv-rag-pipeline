@@ -61,3 +61,22 @@ def test_build_params_with_token_uses_only_token():
         "verb": "ListRecords",
         "resumptionToken": "TK",
     }
+
+
+def test_build_params_includes_date_filters():
+    params = _repo()._build_params(None, from_date="2024-01-01", until_date="2024-02-01")
+    assert params["from"] == "2024-01-01"
+    assert params["until"] == "2024-02-01"
+
+
+def test_build_params_omits_dates_when_absent():
+    params = _repo()._build_params(None)
+    assert "from" not in params
+    assert "until" not in params
+
+
+def test_build_params_with_token_ignores_dates():
+    assert _repo()._build_params("TK", from_date="2024-01-01") == {
+        "verb": "ListRecords",
+        "resumptionToken": "TK",
+    }
