@@ -14,6 +14,9 @@ from shared.infrastructure.embedding.sentence_transformer_repository import (
     SentenceTransformerRepository,
 )
 from shared.infrastructure.vector_store.qdrant_repository import QdrantRepository
+from shared.logger import get_logger
+
+logger = get_logger(__name__)
 
 RAW_DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
@@ -72,7 +75,7 @@ def main() -> None:
     use_case = IngestPapersUseCase(embedder, store, batch_size=args.batch_size)
 
     use_case.execute(file_path)
-    print("Ingestion concluída.")
+    logger.info("Ingestion concluída.")
 
 if __name__ == "__main__":
     main()
