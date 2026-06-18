@@ -54,6 +54,14 @@ services:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
@@ -90,3 +98,4 @@ services:
 volumes:
   postgres_data:
   qdrant_data:
+  redis_data:

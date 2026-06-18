@@ -13,6 +13,7 @@ from shared.infrastructure.vector_store.qdrant_repository import QdrantRepositor
 
 from rag.application.usecases.answer_question import AnswerQuestionUseCase
 from rag.config import Settings, configure_tls_certificates
+from rag.domain.interfaces.session_store import SessionStore
 from rag.infrastructure.llm.ollama_repository import OllamaRepository
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore
 
@@ -39,6 +40,19 @@ class AppDependencies:
     use_case: AnswerQuestionUseCase
     store: QdrantRepository
     llm: OllamaRepository
+    session_store: SessionStore
+
+
+def _build_session_store(settings: Settings) -> SessionStore:
+    if settings.session_backend == "redis":
+        from rag.infrastructure.session.redis_session_store import RedisSessionStore
+
+        return RedisSessionStore(
+            url=settings.redis_url,
+            ttl_seconds=settings.session_ttl_seconds,
+            max_messages=settings.session_max_messages,
+        )
+    return InMemorySessionStore()
 
 
 def build_dependencies(settings: Settings) -> AppDependencies:
@@ -55,15 +69,18 @@ def build_dependencies(settings: Settings) -> AppDependencies:
         model=settings.ollama_model,
         base_url=settings.ollama_base_url,
     )
+    session_store = _build_session_store(settings)
     use_case = AnswerQuestionUseCase(
         embedder=embedder,
         store=store,
         llm=llm,
-        session_store=InMemorySessionStore(),
+        session_store=session_store,
         top_k=settings.top_k,
         max_history=settings.max_history,
     )
-    return AppDependencies(use_case=use_case, store=store, llm=llm)
+    return AppDependencies(
+        use_case=use_case, store=store, llm=llm, session_store=session_store
+    )
 
 
 @asynccontextmanager
@@ -103,7 +120,11 @@ def health() -> dict[str, str]:
 
 @app.get("/ready")
 def ready(deps: AppDependencies = Depends(get_dependencies)) -> dict[str, object]:
-    checks = {"qdrant": deps.store.is_healthy(), "ollama": deps.llm.is_healthy()}
+    checks = {
+        "qdrant": deps.store.is_healthy(),
+        "ollama": deps.llm.is_healthy(),
+        "session": deps.session_store.is_healthy(),
+    }
     if not all(checks.values()):
         raise HTTPException(status_code=503, detail={"ready": False, "checks": checks})
     return {"ready": True, "checks": checks}

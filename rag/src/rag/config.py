@@ -17,6 +17,10 @@ class Settings:
     ollama_base_url: str = "http://localhost:11434"
     top_k: int = 5
     max_history: int = 10
+    session_backend: str = "memory"
+    redis_url: str = "redis://localhost:6379/0"
+    session_ttl_seconds: int = 86400
+    session_max_messages: int = 50
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -30,6 +34,10 @@ class Settings:
             ollama_base_url=os.environ.get("OLLAMA_BASE_URL", cls.ollama_base_url),
             top_k=int(os.environ.get("RAG_TOP_K", cls.top_k)),
             max_history=int(os.environ.get("RAG_MAX_HISTORY", cls.max_history)),
+            session_backend=os.environ.get("SESSION_BACKEND", cls.session_backend),
+            redis_url=os.environ.get("REDIS_URL", cls.redis_url),
+            session_ttl_seconds=int(os.environ.get("SESSION_TTL_SECONDS", cls.session_ttl_seconds)),
+            session_max_messages=int(os.environ.get("SESSION_MAX_MESSAGES", cls.session_max_messages)),
         )
 
 def configure_tls_certificates() -> None:

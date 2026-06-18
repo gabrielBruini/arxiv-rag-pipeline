@@ -17,6 +17,9 @@ dependencies = [
     "qdrant-client>=1.9.0",
 ]
 
+[project.optional-dependencies]
+redis = ["redis>=5.0.0"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["rag*"]

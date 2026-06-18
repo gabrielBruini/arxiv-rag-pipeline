@@ -5,7 +5,7 @@ from shared.domain.interfaces.embedding_repository import EmbeddingRepository
 from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
 
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
-from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore
+from rag.domain.interfaces.session_store import SessionStore
 
 NO_ANSWER_MESSAGE = (
     "I couldn't find enough information in the available papers to answer this question."
@@ -38,7 +38,7 @@ class AnswerQuestionUseCase:
         embedder: EmbeddingRepository,
         store: VectorStoreRepository,
         llm: LLMRepository,
-        session_store: InMemorySessionStore,
+        session_store: SessionStore,
         top_k: int = 5,
         max_history: int = 10,
     ):

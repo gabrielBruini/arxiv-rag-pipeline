@@ -8,12 +8,16 @@ from rag.application.usecases.answer_question import AnswerResult
 from rag.main import AppDependencies
 
 
-def _deps(use_case=None, qdrant_ok=True, ollama_ok=True):
+def _deps(use_case=None, qdrant_ok=True, ollama_ok=True, session_ok=True):
     store = MagicMock()
     store.is_healthy.return_value = qdrant_ok
     llm = MagicMock()
     llm.is_healthy.return_value = ollama_ok
-    return AppDependencies(use_case=use_case or MagicMock(), store=store, llm=llm)
+    session = MagicMock()
+    session.is_healthy.return_value = session_ok
+    return AppDependencies(
+        use_case=use_case or MagicMock(), store=store, llm=llm, session_store=session
+    )
 
 
 def _patched(deps):
@@ -29,7 +33,7 @@ def test_health_returns_ok():
 
 
 def test_ready_ok_when_dependencies_healthy():
-    with _patched(_deps(qdrant_ok=True, ollama_ok=True)):
+    with _patched(_deps()):
         with TestClient(main.app) as client:
             r = client.get("/ready")
     assert r.status_code == 200
@@ -37,7 +41,14 @@ def test_ready_ok_when_dependencies_healthy():
 
 
 def test_ready_503_when_a_dependency_is_down():
-    with _patched(_deps(qdrant_ok=False, ollama_ok=True)):
+    with _patched(_deps(qdrant_ok=False)):
+        with TestClient(main.app) as client:
+            r = client.get("/ready")
+    assert r.status_code == 503
+
+
+def test_ready_503_when_session_store_is_down():
+    with _patched(_deps(session_ok=False)):
         with TestClient(main.app) as client:
             r = client.get("/ready")
     assert r.status_code == 503
