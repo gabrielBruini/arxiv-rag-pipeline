@@ -19,6 +19,14 @@ class QdrantRepository(VectorStoreRepository):
 
     def ensure_collection(self, dimension: int) -> None:
         if self._client.collection_exists(self._collection_name):
+            params = self._client.get_collection(self._collection_name).config.params.vectors
+            existing = params.size if isinstance(params, VectorParams) else None
+            if existing is not None and existing != dimension:
+                raise ValueError(
+                    f"Collection '{self._collection_name}' has dimension {existing}, but the "
+                    f"embedding model produces {dimension}. Recreate the collection or use a "
+                    "matching model."
+                )
             return
 
         self._client.create_collection(

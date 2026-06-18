@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+from qdrant_client.models import Distance, VectorParams
 from shared.infrastructure.vector_store import qdrant_repository
 from shared.infrastructure.vector_store.qdrant_repository import (
     QdrantRepository,
@@ -48,3 +50,30 @@ def test_is_healthy_false_on_error():
     repo = _repo()
     repo._client.get_collections.side_effect = Exception("down")
     assert repo.is_healthy() is False
+
+
+def test_ensure_collection_creates_when_absent():
+    repo = _repo()
+    repo._client.collection_exists.return_value = False
+    repo.ensure_collection(384)
+    repo._client.create_collection.assert_called_once()
+
+
+def test_ensure_collection_ok_when_dimension_matches():
+    repo = _repo()
+    repo._client.collection_exists.return_value = True
+    repo._client.get_collection.return_value.config.params.vectors = VectorParams(
+        size=384, distance=Distance.COSINE
+    )
+    repo.ensure_collection(384)
+    repo._client.create_collection.assert_not_called()
+
+
+def test_ensure_collection_raises_on_dimension_mismatch():
+    repo = _repo()
+    repo._client.collection_exists.return_value = True
+    repo._client.get_collection.return_value.config.params.vectors = VectorParams(
+        size=384, distance=Distance.COSINE
+    )
+    with pytest.raises(ValueError, match="dimension"):
+        repo.ensure_collection(768)
