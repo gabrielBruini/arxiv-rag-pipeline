@@ -33,3 +33,13 @@ def test_load_model_forced_offline_does_not_retry():
     assert out is fake_model
     st.assert_called_once()
     assert st.call_args.kwargs["local_files_only"] is True
+
+
+def test_init_prefers_new_dimension_method():
+    fake_model = MagicMock()
+    fake_model.get_embedding_dimension.return_value = 384
+    with patch.object(mod, "SentenceTransformer", return_value=fake_model):
+        repo = SentenceTransformerRepository()
+    assert repo.dimension == 384
+    fake_model.get_embedding_dimension.assert_called_once()
+    fake_model.get_sentence_embedding_dimension.assert_not_called()
