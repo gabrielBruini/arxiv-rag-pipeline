@@ -20,7 +20,6 @@ class Paper:
         return self.categories[0] if self.categories else None
 
     def to_chunk_text(self) -> str:
-        """Monta o texto que vai ser usado para embedding/RAG."""
         parts = [
             f"Título: {self.title}",
             f"Categorias: {', '.join(self.categories)}",

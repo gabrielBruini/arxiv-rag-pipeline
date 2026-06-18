@@ -1,10 +1,12 @@
 import os
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 @dataclass(frozen=True)
 class Settings:
-    """Configuração da API de RAG, lida a partir de variáveis de ambiente."""
 
     embedding_model: str = "all-MiniLM-L6-v2"
     embedding_device: str | None = None
@@ -28,16 +30,7 @@ class Settings:
             top_k=int(os.environ.get("RAG_TOP_K", cls.top_k)),
         )
 
-
 def configure_tls_certificates() -> None:
-    """Aponta as libs HTTP para o bundle de CAs do certifi quando o ambiente não
-    tem um configurado.
-
-    Em máquinas Windows sem os CAs corretos no store do sistema, o download de
-    modelos do HuggingFace falha com CERTIFICATE_VERIFY_FAILED. Usar o bundle do
-    certifi resolve isso sem desabilitar a verificação de certificado. Só preenche
-    as variáveis se ainda não estiverem definidas, respeitando overrides do usuário.
-    """
     try:
         import certifi
     except ImportError:

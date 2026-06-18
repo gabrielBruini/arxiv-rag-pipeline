@@ -8,16 +8,13 @@ from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore
 
 NO_ANSWER_MESSAGE = (
-    "Não encontrei informação suficiente nos papers disponíveis para responder a "
-    "essa pergunta."
+    "I couldn't find enough information in the available papers to answer this question."
 )
-
 
 @dataclass
 class AnswerResult:
     answer: str
     sources: list[dict[str, str]]
-
 
 def _build_context(search_results: list[dict[str, Any]]) -> str:
     blocks = []
@@ -28,16 +25,13 @@ def _build_context(search_results: list[dict[str, Any]]) -> str:
         )
     return "\n\n".join(blocks)
 
-
 def _extract_sources(search_results: list[dict[str, Any]]) -> list[dict[str, str]]:
     return [
         {"arxiv_id": r["payload"]["arxiv_id"], "title": r["payload"]["title"]}
         for r in search_results
     ]
 
-
 class AnswerQuestionUseCase:
-    """Orquestra o fluxo de RAG: embeda a pergunta -> busca papers -> gera resposta com o LLM."""
 
     def __init__(
         self,
@@ -65,7 +59,6 @@ class AnswerQuestionUseCase:
         messages = [*history, {"role": "user", "content": question}]
         answer = self._llm.generate(messages, context)
 
-        # Sem resposta nos papers: não retorna sources, que seriam enganosos.
         if answer.strip() == NO_ANSWER_SIGNAL:
             answer = NO_ANSWER_MESSAGE
             sources = []

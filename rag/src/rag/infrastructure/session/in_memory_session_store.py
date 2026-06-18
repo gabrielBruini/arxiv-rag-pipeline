@@ -1,13 +1,6 @@
 from collections import defaultdict
 
-
 class InMemorySessionStore:
-    """
-    Guarda o histórico de mensagens por sessão, em memória.
-
-    Simples e funcional para uso local/desenvolvimento. Se o processo reiniciar,
-    todo o histórico se perde — para produção, trocar por Redis/Postgres depois.
-    """
 
     def __init__(self):
         self._sessions: dict[str, list[dict[str, str]]] = defaultdict(list)

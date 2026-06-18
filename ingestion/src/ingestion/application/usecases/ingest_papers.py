@@ -6,7 +6,6 @@ from ingestion.domain.interfaces.embedding_repository import EmbeddingRepository
 from ingestion.domain.interfaces.vector_store_repository import VectorStoreRepository
 from ingestion.infrastructure.readers.json_reader import read_papers
 
-
 def _to_payload(paper: Paper) -> dict:
     return {
         "arxiv_id": paper.arxiv_id,
@@ -17,9 +16,7 @@ def _to_payload(paper: Paper) -> dict:
         "primary_category": paper.primary_category,
     }
 
-
 class IngestPapersUseCase:
-    """Orquestra o pipeline completo: lê o arquivo -> filtra duplicados -> embeda em lote -> upsert em lote."""
 
     def __init__(self, embedder: EmbeddingRepository, store: VectorStoreRepository, batch_size: int = 64):
         self._embedder = embedder

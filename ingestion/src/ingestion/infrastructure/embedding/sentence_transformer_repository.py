@@ -2,9 +2,7 @@ from sentence_transformers import SentenceTransformer
 
 from ingestion.domain.interfaces.embedding_repository import EmbeddingRepository
 
-
 class SentenceTransformerRepository(EmbeddingRepository):
-    """Implementação do EmbeddingRepository usando sentence-transformers (modelo local)."""
 
     def __init__(
         self,
@@ -19,8 +17,6 @@ class SentenceTransformerRepository(EmbeddingRepository):
     def _load_model(
         model_name: str, device: str | None, local_files_only: bool
     ) -> SentenceTransformer:
-        # Prefere o cache local: se o modelo já foi baixado, carrega sem rede e
-        # evita erros de SSL/conectividade. Só vai à rede se não houver cache.
         if local_files_only:
             return SentenceTransformer(model_name, device=device, local_files_only=True)
         try:

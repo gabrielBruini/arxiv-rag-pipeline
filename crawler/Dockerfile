@@ -1,11 +1,12 @@
 FROM apache/airflow:2.9.0-python3.12
 
-# Dependências do crawler
 COPY crawler/requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
-# Pacote compartilhado (entidades de domínio comuns), instalado em modo editável.
-# O conteúdo de /shared é sobreposto por um volume em runtime (ver docker-compose.yml),
-# então edições no host refletem no container sem rebuild.
-COPY shared /shared
+COPY --chown=airflow:root shared /shared
 RUN pip install --no-cache-dir -e /shared
+
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+COPY --chown=airflow:root ingestion /ingestion
+RUN pip install --no-cache-dir -e /ingestion

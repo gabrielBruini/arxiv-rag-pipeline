@@ -4,12 +4,7 @@ from shared.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 class HarvestPapersUseCase:
-    """
-    Orquestra o harvesting paginado de papers, percorrendo
-    todas as páginas via resumptionToken até não haver mais.
-    """
 
     def __init__(self, repository: HarvestRepository):
         self.repository = repository

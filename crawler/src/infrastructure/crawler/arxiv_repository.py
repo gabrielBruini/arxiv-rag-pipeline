@@ -1,6 +1,7 @@
 import time
 from lxml import etree
 from shared.domain.entities.paper import Paper
+from shared.config import settings
 from domain.interfaces.harvest_repository import HarvestRepository
 from infrastructure.crawler.http_client import HttpClient
 from shared.logger import get_logger
@@ -12,25 +13,20 @@ NAMESPACES = {
     "arxiv": "http://arxiv.org/OAI/arXiv/",
 }
 
-
 class ArxivRepository(HarvestRepository):
-    """
-    Implementação do HarvestRepository para o protocolo OAI-PMH do arXiv.
-    """
-
-    BASE_URL = "https://oaipmh.arxiv.org/oai"
-    METADATA_PREFIX = "arXiv"
-    SET_SPEC = "cs"  # Ciência da Computação (todas as subcategorias)
-    REQUEST_DELAY = 3  # segundos entre requisições (respeita o rate limit)
 
     def __init__(self, http_client: HttpClient):
         self.http_client = http_client
+        self.base_url = settings.arxiv_base_url
+        self.metadata_prefix = settings.arxiv_metadata_prefix
+        self.set_spec = settings.arxiv_set_spec
+        self.request_delay = settings.arxiv_request_delay
 
     def harvest_page(self, resumption_token: str | None = None) -> tuple[list[Paper], str | None]:
         params = self._build_params(resumption_token)
 
-        time.sleep(self.REQUEST_DELAY)  
-        response_xml = self.http_client.get(self.BASE_URL, params=params)
+        time.sleep(self.request_delay)
+        response_xml = self.http_client.get(self.base_url, params=params)
 
         root = etree.fromstring(response_xml.encode("utf-8"))
         papers = self._parse_records(root)
@@ -44,8 +40,8 @@ class ArxivRepository(HarvestRepository):
 
         return {
             "verb": "ListRecords",
-            "metadataPrefix": self.METADATA_PREFIX,
-            "set": self.SET_SPEC,
+            "metadataPrefix": self.metadata_prefix,
+            "set": self.set_spec,
         }
 
     def _parse_records(self, root: etree._Element) -> list[Paper]:

@@ -6,14 +6,11 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 
 from ingestion.domain.interfaces.vector_store_repository import VectorStoreRepository
 
-
 def _to_point_id(arxiv_id: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, f"arxiv:{arxiv_id}"))
 
-
 class QdrantRepository(VectorStoreRepository):
 
-    # Limite conservador de ids por chamada de retrieve, para não estourar a request.
     _RETRIEVE_CHUNK_SIZE = 500
 
     def __init__(self, collection_name: str = "arxiv_cs_papers", host: str = "localhost", port: int = 6333):
@@ -30,8 +27,6 @@ class QdrantRepository(VectorStoreRepository):
         )
 
     def exists_batch(self, point_ids: list[str]) -> set[str]:
-        # Mapeia o point_id interno (UUID) de volta para o id original, já que o
-        # retrieve retorna os pontos pelo UUID e não pelo arxiv_id.
         original_by_point_id = {_to_point_id(pid): pid for pid in point_ids}
 
         existing: set[str] = set()

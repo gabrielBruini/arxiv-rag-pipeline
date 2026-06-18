@@ -4,18 +4,17 @@ import requests
 
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
 
-_SYSTEM_PROMPT_TEMPLATE = """Você é um assistente especialista em pesquisa acadêmica de Ciência da Computação.
-Responda à pergunta do usuário com base SOMENTE nos papers fornecidos a seguir.
-Se os papers não tiverem informação suficiente para responder, responda EXATAMENTE com o texto {no_answer_signal} e nada mais — não invente.
-Sempre que usar informação de um paper específico, cite o arxiv_id entre parênteses.
+_SYSTEM_PROMPT_TEMPLATE = """You are an expert assistant in Computer Science academic research.
+Answer the user's question based ONLY on the papers provided below.
+Always respond in English, regardless of the language of the question.
+If the papers do not contain enough information to answer, respond EXACTLY with the text {no_answer_signal} and nothing else — do not make anything up.
+Whenever you use information from a specific paper, cite its arxiv_id in parentheses.
 
-Papers disponíveis:
+Available papers:
 {context}
 """
 
-
 class OllamaRepository(LLMRepository):
-    """Implementação do LLMRepository usando um servidor Ollama local."""
 
     def __init__(self, model: str | None = None, base_url: str | None = None):
         self._model = model or os.environ.get("OLLAMA_MODEL", "llama3.1")

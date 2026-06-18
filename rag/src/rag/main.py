@@ -13,9 +13,7 @@ from rag.config import Settings, configure_tls_certificates
 from rag.infrastructure.llm.ollama_repository import OllamaRepository
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore
 
-
 def build_use_case(settings: Settings) -> AnswerQuestionUseCase:
-    """Monta o caso de uso e suas dependências a partir da configuração."""
     embedder = SentenceTransformerRepository(
         model_name=settings.embedding_model,
         device=settings.embedding_device,
@@ -39,39 +37,30 @@ def build_use_case(settings: Settings) -> AnswerQuestionUseCase:
         top_k=settings.top_k,
     )
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Carga pesada (modelo de embedding, clientes) acontece aqui, no startup,
-    # e não na importação do módulo — mantém o import barato e os erros explícitos.
     configure_tls_certificates()
     settings = Settings.from_env()
     app.state.use_case = build_use_case(settings)
     yield
     app.state.use_case = None
 
-
 app = FastAPI(title="arXiv RAG API", lifespan=lifespan)
-
 
 def get_use_case(request: Request) -> AnswerQuestionUseCase:
     return request.app.state.use_case
-
 
 class ChatRequest(BaseModel):
     session_id: str
     question: str
 
-
 class Source(BaseModel):
     arxiv_id: str
     title: str
 
-
 class ChatResponse(BaseModel):
     answer: str
     sources: list[Source]
-
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(

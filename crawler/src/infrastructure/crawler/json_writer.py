@@ -6,9 +6,7 @@ from shared.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 class JsonWriter:
-    """Salva uma lista de Papers em um arquivo JSON."""
 
     def write(self, papers: list[Paper], dest: Path) -> Path:
         dest.parent.mkdir(parents=True, exist_ok=True)

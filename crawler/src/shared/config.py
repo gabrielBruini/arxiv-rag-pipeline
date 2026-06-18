@@ -1,16 +1,18 @@
-from pathlib import Path
+import os
 from dataclasses import dataclass
 
-@dataclass
-class Settings:
-    BASE_URL: str = "https://portaldatransparencia.gov.br/download-de-dados/servidores"
-    RAW_DATA_DIR: Path = Path("data/raw")
-    TIMEOUT: int = 120
-    CHUNK_SIZE: int = 8192
-    # Zips de placeholder/vazios do portal vêm com ~1,5 KB; os reais têm dezenas de MB.
-    MIN_DOWNLOAD_SIZE: int = 10_240  # 10 KB
+from dotenv import load_dotenv
 
-    def __post_init__(self):
-        self.RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+load_dotenv()
+
+@dataclass(frozen=True)
+class Settings:
+    arxiv_base_url: str = os.environ.get("ARXIV_OAI_BASE_URL", "https://oaipmh.arxiv.org/oai")
+    arxiv_metadata_prefix: str = os.environ.get("ARXIV_METADATA_PREFIX", "arXiv")
+    arxiv_set_spec: str = os.environ.get("ARXIV_SET_SPEC", "cs")
+    arxiv_request_delay: int = int(os.environ.get("ARXIV_REQUEST_DELAY", "3"))
+
+    timeout: int = int(os.environ.get("HTTP_TIMEOUT", "120"))
+    chunk_size: int = int(os.environ.get("HTTP_CHUNK_SIZE", "8192"))
 
 settings = Settings()
