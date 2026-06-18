@@ -1,7 +1,8 @@
-import json
+from collections.abc import Iterator
 from datetime import date
 from pathlib import Path
 
+import ijson
 from shared.domain.entities.paper import Paper
 
 
@@ -9,6 +10,7 @@ def _parse_date(value: str | None) -> date | None:
     if value is None:
         return None
     return date.fromisoformat(value)
+
 
 def _to_paper(raw: dict) -> Paper:
     return Paper(
@@ -21,9 +23,9 @@ def _to_paper(raw: dict) -> Paper:
         updated_date=_parse_date(raw.get("updated_date")),
     )
 
-def read_papers(file_path: str | Path) -> list[Paper]:
-    path = Path(file_path)
-    with path.open("r", encoding="utf-8") as f:
-        raw_items = json.load(f)
 
-    return [_to_paper(item) for item in raw_items]
+def read_papers(file_path: str | Path) -> Iterator[Paper]:
+    path = Path(file_path)
+    with path.open("rb") as f:
+        for raw in ijson.items(f, "item"):
+            yield _to_paper(raw)

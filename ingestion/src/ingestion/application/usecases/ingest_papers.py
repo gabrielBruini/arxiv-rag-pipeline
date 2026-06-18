@@ -1,3 +1,4 @@
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from ingestion.infrastructure.readers.json_reader import read_papers
@@ -19,9 +20,23 @@ def _to_payload(paper: Paper) -> dict:
         "primary_category": paper.primary_category,
     }
 
+
+def _batched(items: Iterable[Paper], size: int) -> Iterator[list[Paper]]:
+    batch: list[Paper] = []
+    for item in items:
+        batch.append(item)
+        if len(batch) >= size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
 class IngestPapersUseCase:
 
-    def __init__(self, embedder: EmbeddingRepository, store: VectorStoreRepository, batch_size: int = 64):
+    def __init__(
+        self, embedder: EmbeddingRepository, store: VectorStoreRepository, batch_size: int = 64
+    ):
         self._embedder = embedder
         self._store = store
         self._batch_size = batch_size
@@ -29,19 +44,19 @@ class IngestPapersUseCase:
     def execute(self, file_path: str | Path) -> None:
         self._store.ensure_collection(dimension=self._embedder.dimension)
 
-        papers = read_papers(file_path)
-        logger.info(f"Lidos {len(papers)} papers de {file_path}")
-
-        valid = [p for p in papers if p.is_valid]
-        already_indexed = self._store.exists_batch([p.arxiv_id for p in valid])
-        pending = [p for p in valid if p.arxiv_id not in already_indexed]
-        skipped = len(papers) - len(pending)
-        logger.info(f"{skipped} já indexados ou inválidos (pulados), {len(pending)} a processar")
-
-        for start in range(0, len(pending), self._batch_size):
-            batch = pending[start : start + self._batch_size]
-            self._process_batch(batch)
-            logger.info(f"Processados {min(start + self._batch_size, len(pending))}/{len(pending)}")
+        total = 0
+        indexed = 0
+        skipped = 0
+        for batch in _batched(read_papers(file_path), self._batch_size):
+            total += len(batch)
+            valid = [p for p in batch if p.is_valid]
+            already_indexed = self._store.exists_batch([p.arxiv_id for p in valid])
+            pending = [p for p in valid if p.arxiv_id not in already_indexed]
+            skipped += len(batch) - len(pending)
+            if pending:
+                self._process_batch(pending)
+                indexed += len(pending)
+            logger.info(f"Processados {total} (indexados {indexed}, pulados {skipped})")
 
     def _process_batch(self, batch: list[Paper]) -> None:
         texts = [p.to_chunk_text() for p in batch]
