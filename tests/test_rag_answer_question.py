@@ -73,3 +73,18 @@ def test_history_is_persisted_across_calls():
     uc.execute("sess", "second")
     contents = [m["content"] for m in store.get_history("sess")]
     assert contents == ["first", "a", "second", "a"]
+
+
+def test_history_capped_when_sent_to_llm():
+    store = InMemorySessionStore()
+    llm = FakeLLM("a")
+    uc = AnswerQuestionUseCase(
+        FakeEmbedder(), FakeStore(_RESULTS), llm, store, max_history=2
+    )
+    uc.execute("s", "q1")
+    uc.execute("s", "q2")
+    uc.execute("s", "q3")
+    sent = [(m["role"], m["content"]) for m in llm.last_messages]
+    assert len(sent) == 3
+    assert sent[0] == ("user", "q2")
+    assert sent[-1] == ("user", "q3")

@@ -36,3 +36,15 @@ def test_search_maps_points_to_dicts():
     assert repo.search([0.0], limit=1) == [
         {"id": "x", "score": 0.5, "payload": {"arxiv_id": "a"}}
     ]
+
+
+def test_is_healthy_true_when_client_responds():
+    repo = _repo()
+    repo._client.get_collections.return_value = MagicMock()
+    assert repo.is_healthy() is True
+
+
+def test_is_healthy_false_on_error():
+    repo = _repo()
+    repo._client.get_collections.side_effect = Exception("down")
+    assert repo.is_healthy() is False

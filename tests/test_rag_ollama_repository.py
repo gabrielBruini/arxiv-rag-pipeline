@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import requests
+
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL
 from rag.infrastructure.llm.ollama_repository import (
     OllamaRepository,
@@ -31,3 +33,21 @@ def test_generate_posts_and_returns_content():
     assert sent["messages"][0]["role"] == "system"
     assert "CTX" in sent["messages"][0]["content"]
     assert sent["messages"][-1] == {"role": "user", "content": "q"}
+
+
+def test_is_healthy_true_on_200():
+    repo = OllamaRepository(base_url="http://x:11434")
+    response = MagicMock(status_code=200)
+    with patch(
+        "rag.infrastructure.llm.ollama_repository.requests.get", return_value=response
+    ):
+        assert repo.is_healthy() is True
+
+
+def test_is_healthy_false_on_connection_error():
+    repo = OllamaRepository(base_url="http://x:11434")
+    with patch(
+        "rag.infrastructure.llm.ollama_repository.requests.get",
+        side_effect=requests.RequestException("boom"),
+    ):
+        assert repo.is_healthy() is False

@@ -62,3 +62,10 @@ class QdrantRepository(VectorStoreRepository):
             {"id": r.id, "score": r.score, "payload": r.payload}
             for r in results
         ]
+
+    def is_healthy(self) -> bool:
+        try:
+            self._client.get_collections()
+            return True
+        except Exception:
+            return False

@@ -40,12 +40,14 @@ class AnswerQuestionUseCase:
         llm: LLMRepository,
         session_store: InMemorySessionStore,
         top_k: int = 5,
+        max_history: int = 10,
     ):
         self._embedder = embedder
         self._store = store
         self._llm = llm
         self._session_store = session_store
         self._top_k = top_k
+        self._max_history = max_history
 
     def execute(self, session_id: str, question: str) -> AnswerResult:
         history = self._session_store.get_history(session_id)
@@ -56,7 +58,8 @@ class AnswerQuestionUseCase:
         context = _build_context(search_results)
         sources = _extract_sources(search_results)
 
-        messages = [*history, {"role": "user", "content": question}]
+        recent_history = history[-self._max_history :] if self._max_history else history
+        messages = [*recent_history, {"role": "user", "content": question}]
         answer = self._llm.generate(messages, context)
 
         if answer.strip() == NO_ANSWER_SIGNAL:

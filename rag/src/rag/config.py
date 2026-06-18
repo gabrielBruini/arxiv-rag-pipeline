@@ -16,6 +16,7 @@ class Settings:
     ollama_model: str = "llama3.1"
     ollama_base_url: str = "http://localhost:11434"
     top_k: int = 5
+    max_history: int = 10
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -28,6 +29,7 @@ class Settings:
             ollama_model=os.environ.get("OLLAMA_MODEL", cls.ollama_model),
             ollama_base_url=os.environ.get("OLLAMA_BASE_URL", cls.ollama_base_url),
             top_k=int(os.environ.get("RAG_TOP_K", cls.top_k)),
+            max_history=int(os.environ.get("RAG_MAX_HISTORY", cls.max_history)),
         )
 
 def configure_tls_certificates() -> None:
