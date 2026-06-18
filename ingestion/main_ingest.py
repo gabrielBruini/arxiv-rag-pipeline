@@ -10,10 +10,10 @@ os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
 from ingestion.application.usecases.ingest_papers import IngestPapersUseCase
-from ingestion.infrastructure.embedding.sentence_transformer_repository import (
+from shared.infrastructure.embedding.sentence_transformer_repository import (
     SentenceTransformerRepository,
 )
-from ingestion.infrastructure.vector_store.qdrant_repository import QdrantRepository
+from shared.infrastructure.vector_store.qdrant_repository import QdrantRepository
 
 RAW_DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 

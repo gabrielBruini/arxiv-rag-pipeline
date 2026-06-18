@@ -50,10 +50,10 @@ def arxiv_pipeline():
         from pathlib import Path
 
         from ingestion.application.usecases.ingest_papers import IngestPapersUseCase
-        from ingestion.infrastructure.embedding.sentence_transformer_repository import (
+        from shared.infrastructure.embedding.sentence_transformer_repository import (
             SentenceTransformerRepository,
         )
-        from ingestion.infrastructure.vector_store.qdrant_repository import (
+        from shared.infrastructure.vector_store.qdrant_repository import (
             QdrantRepository,
         )
 

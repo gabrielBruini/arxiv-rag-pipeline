@@ -5,9 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "shared"
 version = "0.1.0"
-description = "Entidades e código compartilhado do (crawler, ingestion)"
+description = "Entidades, interfaces e repositórios compartilhados (embedding, vector store)"
 requires-python = ">=3.10"
 dependencies = []
+
+[project.optional-dependencies]
+infra = [
+    "sentence-transformers>=3.0.0",
+    "qdrant-client>=1.9.0",
+]
 
 # Namespace package (PEP 420): nenhum __init__.py em src/shared.
 # Isso permite que o pacote instalado `shared.*` conviva com o

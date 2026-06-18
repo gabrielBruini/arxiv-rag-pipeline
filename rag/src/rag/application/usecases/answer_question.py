@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
-from ingestion.domain.interfaces.embedding_repository import EmbeddingRepository
-from ingestion.domain.interfaces.vector_store_repository import VectorStoreRepository
+from shared.domain.interfaces.embedding_repository import EmbeddingRepository
+from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
 
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore

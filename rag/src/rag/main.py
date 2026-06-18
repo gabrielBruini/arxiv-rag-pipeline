@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel
 
-from ingestion.infrastructure.embedding.sentence_transformer_repository import (
+from shared.infrastructure.embedding.sentence_transformer_repository import (
     SentenceTransformerRepository,
 )
-from ingestion.infrastructure.vector_store.qdrant_repository import QdrantRepository
+from shared.infrastructure.vector_store.qdrant_repository import QdrantRepository
 
 from rag.application.usecases.answer_question import AnswerQuestionUseCase
 from rag.config import Settings, configure_tls_certificates

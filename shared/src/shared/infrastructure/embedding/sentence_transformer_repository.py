@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer
 
-from ingestion.domain.interfaces.embedding_repository import EmbeddingRepository
+from shared.domain.interfaces.embedding_repository import EmbeddingRepository
 
 class SentenceTransformerRepository(EmbeddingRepository):
 
