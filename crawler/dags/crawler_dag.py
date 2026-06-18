@@ -5,6 +5,7 @@ from datetime import datetime
 from airflow.decorators import dag, task
 from airflow.models.param import Param
 
+
 @dag(
     dag_id="arxiv_pipeline",
     schedule="0 3 * * 1",

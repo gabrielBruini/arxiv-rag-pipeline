@@ -5,34 +5,34 @@ from dataclasses import dataclass
 import requests
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel
-
-from shared.infrastructure.embedding.sentence_transformer_repository import (
-    SentenceTransformerRepository,
-)
-from shared.infrastructure.vector_store.qdrant_repository import QdrantRepository
-
 from rag.application.usecases.answer_question import AnswerQuestionUseCase
 from rag.config import Settings, configure_tls_certificates
 from rag.domain.interfaces.session_store import SessionStore
 from rag.infrastructure.llm.ollama_repository import OllamaRepository
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore
+from shared.infrastructure.embedding.sentence_transformer_repository import (
+    SentenceTransformerRepository,
+)
+from shared.infrastructure.vector_store.qdrant_repository import QdrantRepository
 
 logger = logging.getLogger("rag.api")
 
+_QDRANT_ERRORS: tuple[type[BaseException], ...]
 try:
     from qdrant_client.http.exceptions import (
         ResponseHandlingException,
         UnexpectedResponse,
     )
 
-    _QDRANT_ERRORS: tuple[type[Exception], ...] = (
-        ResponseHandlingException,
-        UnexpectedResponse,
-    )
+    _QDRANT_ERRORS = (ResponseHandlingException, UnexpectedResponse)
 except Exception:
     _QDRANT_ERRORS = ()
 
-_DEPENDENCY_ERRORS = (requests.RequestException, ConnectionError, *_QDRANT_ERRORS)
+_DEPENDENCY_ERRORS: tuple[type[BaseException], ...] = (
+    requests.RequestException,
+    ConnectionError,
+    *_QDRANT_ERRORS,
+)
 
 
 @dataclass
@@ -139,10 +139,13 @@ def chat(
         result = deps.use_case.execute(
             session_id=request.session_id, question=request.question
         )
-    except _DEPENDENCY_ERRORS:
+    except _DEPENDENCY_ERRORS as exc:
         logger.exception("Chat failed: upstream dependency error")
         raise HTTPException(
             status_code=503,
             detail="An upstream dependency (vector store or LLM) is unavailable.",
-        )
-    return ChatResponse(answer=result.answer, sources=result.sources)
+        ) from exc
+    return ChatResponse(
+        answer=result.answer,
+        sources=[Source(**s) for s in result.sources],
+    )

@@ -11,6 +11,11 @@ __pycache__/
 build/
 dist/
 
+# Caches de ferramentas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # Ambientes virtuais
 .venv/
 venv/

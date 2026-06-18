@@ -1,9 +1,8 @@
 from unittest.mock import MagicMock, patch
 
+import rag.main as main
 import requests
 from fastapi.testclient import TestClient
-
-import rag.main as main
 from rag.application.usecases.answer_question import AnswerResult
 from rag.main import AppDependencies
 

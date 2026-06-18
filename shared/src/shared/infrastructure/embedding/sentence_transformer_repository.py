@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer
-
 from shared.domain.interfaces.embedding_repository import EmbeddingRepository
+
 
 class SentenceTransformerRepository(EmbeddingRepository):
 
@@ -11,7 +11,10 @@ class SentenceTransformerRepository(EmbeddingRepository):
         local_files_only: bool = False,
     ):
         self._model = self._load_model(model_name, device, local_files_only)
-        self._dimension = self._model.get_sentence_embedding_dimension()
+        dimension = self._model.get_sentence_embedding_dimension()
+        if dimension is None:
+            raise RuntimeError(f"Could not determine embedding dimension for '{model_name}'")
+        self._dimension = dimension
 
     @staticmethod
     def _load_model(

@@ -1,7 +1,7 @@
 import os
+from typing import Any
 
 import requests
-
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
 
 _SYSTEM_PROMPT_TEMPLATE = """You are an expert assistant in Computer Science academic research.
@@ -28,7 +28,7 @@ class OllamaRepository(LLMRepository):
             ),
         }
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": self._model,
             "messages": [system_message, *messages],
             "stream": False,

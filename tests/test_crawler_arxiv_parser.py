@@ -1,7 +1,6 @@
-from lxml import etree
-
 from infrastructure.crawler.arxiv_repository import ArxivRepository
 from infrastructure.crawler.http_client import HttpClient
+from lxml import etree
 
 _SAMPLE = """<?xml version="1.0"?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/">

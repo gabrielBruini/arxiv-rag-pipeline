@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from typing import Any
 
-from shared.domain.interfaces.embedding_repository import EmbeddingRepository
-from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
-
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL, LLMRepository
 from rag.domain.interfaces.session_store import SessionStore
+from shared.domain.interfaces.embedding_repository import EmbeddingRepository
+from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
 
 NO_ANSWER_MESSAGE = (
     "I couldn't find enough information in the available papers to answer this question."

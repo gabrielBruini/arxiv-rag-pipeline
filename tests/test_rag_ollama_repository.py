@@ -1,11 +1,10 @@
 from unittest.mock import MagicMock, patch
 
 import requests
-
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL
 from rag.infrastructure.llm.ollama_repository import (
-    OllamaRepository,
     _SYSTEM_PROMPT_TEMPLATE,
+    OllamaRepository,
 )
 
 

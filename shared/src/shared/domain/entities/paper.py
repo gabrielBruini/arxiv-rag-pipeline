@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import date
 
+
 @dataclass
 class Paper:
     arxiv_id: str

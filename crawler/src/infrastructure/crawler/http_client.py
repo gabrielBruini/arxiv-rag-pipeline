@@ -1,8 +1,9 @@
-import requests
 from pathlib import Path
-from tqdm import tqdm
+
+import requests
 from shared.config import settings
 from shared.logger import get_logger
+from tqdm import tqdm
 
 logger = get_logger(__name__)
 

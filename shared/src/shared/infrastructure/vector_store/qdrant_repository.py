@@ -3,8 +3,8 @@ from typing import Any
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
-
 from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
+
 
 def _to_point_id(arxiv_id: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, f"arxiv:{arxiv_id}"))

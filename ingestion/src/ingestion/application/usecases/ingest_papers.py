@@ -1,10 +1,10 @@
 from pathlib import Path
 
+from ingestion.infrastructure.readers.json_reader import read_papers
 from shared.domain.entities.paper import Paper
-
 from shared.domain.interfaces.embedding_repository import EmbeddingRepository
 from shared.domain.interfaces.vector_store_repository import VectorStoreRepository
-from ingestion.infrastructure.readers.json_reader import read_papers
+
 
 def _to_payload(paper: Paper) -> dict:
     return {
@@ -44,5 +44,5 @@ class IngestPapersUseCase:
         texts = [p.to_chunk_text() for p in batch]
         vectors = self._embedder.embed_batch(texts)
 
-        for paper, vector in zip(batch, vectors):
+        for paper, vector in zip(batch, vectors, strict=True):
             self._store.upsert(paper.arxiv_id, vector, _to_payload(paper))

@@ -1,9 +1,10 @@
 import time
-from lxml import etree
-from shared.domain.entities.paper import Paper
-from shared.config import settings
+
 from domain.interfaces.harvest_repository import HarvestRepository
 from infrastructure.crawler.http_client import HttpClient
+from lxml import etree
+from shared.config import settings
+from shared.domain.entities.paper import Paper
 from shared.logger import get_logger
 
 logger = get_logger(__name__)

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from shared.domain.entities.paper import Paper
 
+
 def _parse_date(value: str | None) -> date | None:
     if value is None:
         return None

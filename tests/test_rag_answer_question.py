@@ -1,6 +1,6 @@
 from rag.application.usecases.answer_question import (
-    AnswerQuestionUseCase,
     NO_ANSWER_MESSAGE,
+    AnswerQuestionUseCase,
 )
 from rag.domain.interfaces.llm_repository import NO_ANSWER_SIGNAL
 from rag.infrastructure.session.in_memory_session_store import InMemorySessionStore

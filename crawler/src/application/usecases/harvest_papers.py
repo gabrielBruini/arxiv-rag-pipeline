@@ -1,7 +1,7 @@
 from collections.abc import Iterator
 
-from shared.domain.entities.paper import Paper
 from domain.interfaces.harvest_repository import HarvestRepository
+from shared.domain.entities.paper import Paper
 from shared.logger import get_logger
 
 logger = get_logger(__name__)

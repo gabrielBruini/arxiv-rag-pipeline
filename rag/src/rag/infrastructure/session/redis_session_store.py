@@ -1,7 +1,6 @@
 import json
 
 import redis
-
 from rag.domain.interfaces.session_store import SessionStore
 
 
