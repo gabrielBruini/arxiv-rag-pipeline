@@ -60,6 +60,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
   airflow-init:
@@ -93,6 +98,42 @@ services:
         condition: service_completed_successfully
       qdrant:
         condition: service_started
+    restart: unless-stopped
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: rag/Dockerfile
+    image: arxiv-rag-api:latest
+    ports:
+      - "8000:8000"
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: ${QDRANT_PORT:-6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-arxiv_cs_papers}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      SESSION_BACKEND: ${SESSION_BACKEND:-memory}
+      REDIS_URL: redis://redis:6379/0
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+      RAG_MAX_HISTORY: ${RAG_MAX_HISTORY:-10}
+      HF_HOME: /opt/hf_cache
+    volumes:
+      - ./data/hf_cache:/opt/hf_cache
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      qdrant:
+        condition: service_started
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
     restart: unless-stopped
 
 volumes:

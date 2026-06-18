@@ -49,17 +49,18 @@ abaixo são os defaults usados quando nada é definido.
 ## Como rodar
 
 ```bash
-# 1. Sobe Qdrant + Airflow (e Postgres)
-docker compose up -d
+# 1. Sobe tudo em container: Qdrant, Redis, Airflow (+Postgres) e a API de RAG
+docker compose up -d --build
 
-# 2. Crawler: dispare a DAG `arxiv_harvester` na UI do Airflow (http://localhost:8080)
-#    ou rode a ingestion a partir de um JSON já coletado:
-python ingestion/main_ingest.py
+# 2. Pipeline de dados: dispare a DAG `arxiv_pipeline` na UI do Airflow
+#    (http://localhost:8080, admin/admin) — faz crawl + embedding e popula o Qdrant.
+#    Alternativa manual da ingestion (a partir de um JSON já coletado):
+#    python ingestion/main_ingest.py
 
-# 3. API de RAG
-uvicorn rag.main:app --reload --port 8000
-# docs interativas em http://localhost:8000/docs
+# 3. API de RAG já no ar: http://localhost:8000  (docs em /docs)
 ```
 
-Pré-requisitos para respostas reais: Qdrant populado (via crawler + ingestion) e
-um servidor Ollama com o modelo configurado (`ollama pull llama3.1`).
+Pré-requisitos para respostas reais: Qdrant populado (DAG `arxiv_pipeline`) e um
+servidor **Ollama rodando no host** com o modelo (`ollama pull llama3.1`). O
+container da API alcança o Ollama do host via `host.docker.internal`. Para rodar
+a API no host em vez do container: `uvicorn rag.main:app --port 8000`.
