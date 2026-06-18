@@ -20,13 +20,13 @@ from airflow.models.param import Param
             description="Número máximo de páginas OAI-PMH a coletar.",
         ),
         "from_date": Param(
-            default="",
-            type="string",
+            default=None,
+            type=["null", "string"],
             description="Data inicial YYYY-MM-DD (filtra por datestamp). Vazio = sem filtro.",
         ),
         "until_date": Param(
-            default="",
-            type="string",
+            default=None,
+            type=["null", "string"],
             description="Data final YYYY-MM-DD. Vazio = sem filtro.",
         ),
     },
@@ -49,8 +49,8 @@ def arxiv_pipeline():
         repo = ArxivRepository(HttpClient())
         papers = HarvestPapersUseCase(repo).execute(
             max_pages=params["max_pages"],
-            from_date=params.get("from_date") or None,
-            until_date=params.get("until_date") or None,
+            from_date=(params.get("from_date") or "").strip() or None,
+            until_date=(params.get("until_date") or "").strip() or None,
         )
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
